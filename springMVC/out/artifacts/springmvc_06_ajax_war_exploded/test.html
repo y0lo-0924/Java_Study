@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>iframe测试体验页面无刷新</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.js"></script>
+    <script>
+        function go(){
+            let url = document.getElementById("url").value;
+            //javascript中所有的元素提前获取
+            document.getElementById("iframe1").src=url;
+        }
+    </script>
+</head>
+<body>
+
+<div>
+    <p>请输入地址：</p>
+    <p>
+        <input type="text" id="url" value="https://www.baidu.com">
+        <input type="button" value="提交" onclick="go()">
+    </p>
+</div>
+
+<div>
+  <iframe id="iframe1" style="width: 100%;height: 500px"></iframe>
+</div>
+
+</body>
+</html>

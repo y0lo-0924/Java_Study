@@ -1,9 +1,11 @@
 package com.y0lo.dao.user;
 
-import com.y0lo.pojo.User;
+import com.y0lo.pojo.*;
+
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 public interface UserDao {
 
@@ -15,4 +17,7 @@ public interface UserDao {
 
     //查询用户总数
     public int getUserCount(Connection connection,String username ,int userRole)throws SQLException;
+
+    //通过条件查询-userList
+    public List<User> getUserList(Connection connection,String userName,int userRole,int currentPageNo,int pageSize) throws Exception;
 }

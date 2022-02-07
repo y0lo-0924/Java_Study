@@ -2,10 +2,13 @@ package com.y0lo.servlet.user;
 
 import com.alibaba.fastjson.JSONArray;
 import com.mysql.cj.util.StringUtils;
+import com.y0lo.pojo.Role;
 import com.y0lo.pojo.User;
+import com.y0lo.service.role.RoleServiceImpl;
 import com.y0lo.service.user.UserService;
 import com.y0lo.service.user.UserServiceImpl;
 import com.y0lo.util.Constants;
+import com.y0lo.util.PageSupport;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 //实现Servlet复用
@@ -25,7 +29,91 @@ public class UserServlet extends HttpServlet {
             this.updatePwd(req,resp);
         }else if(method.equals("pwdmodify")&&method!=null){
             this.pwdModify(req,resp);
+        }else if(method.equals("query")&&method!=null){
+            this.query(req,resp);
         }
+    }
+
+    //重点、难点
+    public void query(HttpServletRequest req, HttpServletResponse resp){
+
+        //查询用户列表
+
+        //从前端获取数据
+        String queryUserName = req.getParameter("queryname");
+        String temp = req.getParameter("queryUserRole");
+        String pageIndex = req.getParameter("pageIndex");
+        int queryUserRole=0;
+
+        //获取用户列表
+        UserServiceImpl userService = new UserServiceImpl();
+
+        //第一次走这个请求，一定是第一页，页面大小固定的
+        int pageSize=5;     //可以把这个写到配置文件里，方便后期修改
+        int currentPageNo=1;
+        List<User> userList;
+
+
+        if(queryUserName==null){
+            queryUserName="";
+        }
+        if(temp!=null&& !temp.equals("")){
+            queryUserRole=Integer.parseInt(temp);      //给查询赋值
+        }
+        if(pageIndex!=null){
+
+            try {
+                currentPageNo = Integer.parseInt(pageIndex);
+            } catch (Exception e) {
+                try {
+                    resp.sendRedirect("error.jsp");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        }
+
+        //获取用户的总数（分页：上一页、下一页）
+        int totalCount = userService.getUserCount(queryUserName, queryUserRole);
+
+        //总页数支持
+        PageSupport pageSupport = new PageSupport();
+        pageSupport.setCurrentPageNo(currentPageNo);
+        pageSupport.setPageSize(pageSize);
+        pageSupport.setTotalCount(totalCount);
+
+        int totalPageCount = pageSupport.getTotalPageCount();   //总共有几页
+
+        //控制首页和尾页
+        //如果页面要小于1了，就显示第一页的东西
+        if(totalPageCount<1){
+            currentPageNo=1;
+        }else if(currentPageNo>totalPageCount){ //当前页面大于了最后一页
+            currentPageNo=totalPageCount;
+        }
+
+
+        //获取用户列表显示
+        userList=userService.getUserList(queryUserName, queryUserRole, currentPageNo, pageSize);
+        req.setAttribute("userList",userList);
+        RoleServiceImpl roleService = new RoleServiceImpl();
+        List<Role> roleList = roleService.getRoleList();
+        req.setAttribute("roleList",roleList);
+        req.setAttribute("totalCount",totalCount);
+        req.setAttribute("currentPageNo",currentPageNo);
+        req.setAttribute("totalPageCount",totalPageCount);
+        req.setAttribute("queryUserName",queryUserName);
+        req.setAttribute("queryUserRole",queryUserRole);
+
+        //返回前端
+        try {
+            req.getRequestDispatcher("userlist.jsp").forward(req,resp);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

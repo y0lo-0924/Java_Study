@@ -6,6 +6,7 @@ import com.y0lo.dao.user.UserDaoImpl;
 import com.y0lo.pojo.User;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -68,14 +69,36 @@ public class UserServiceImpl implements UserService {
             count = userDao.getUserCount(connection, username, userRole);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection,null,null);
         }
         return count;
     }
 
+    //根据条件查询用户列表
+    public List<User> getUserList(String queryUserName, int queryUserRole, int currentPageNo, int pageSize) {
+        Connection connection = null;
+        List<User> userList = null;
+        System.out.println("queryUserName ---- > " + queryUserName);
+        System.out.println("queryUserRole ---- > " + queryUserRole);
+        System.out.println("currentPageNo ---- > " + currentPageNo);
+        System.out.println("pageSize ---- > " + pageSize);
+        try {
+            connection = BaseDao.getConnection();
+            userList = userDao.getUserList(connection, queryUserName,queryUserRole,currentPageNo,pageSize);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+            BaseDao.closeResource(connection, null, null);
+        }
+        return userList;
+    }
+
+
     @Test
     public void test2(){
         UserServiceImpl userService = new UserServiceImpl();
-        int userCount = userService.getUserCount(null, 0);
+        int userCount = userService.getUserCount(null, 1);
         System.out.println(userCount);
     }
 

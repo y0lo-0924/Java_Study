@@ -31,7 +31,7 @@
 				</div>	
 				<div class="inputbox">
                     <label for="userPassword">密码：</label>
-                    <input type="password" id="userPassword" name="userPassword" placeholder="请输入密码" required/>
+                        <input type="password" id="userPassword" name="userPassword" placeholder="请输入密码" required/>
                 </div>	
 				<div class="subBtn">
 					
